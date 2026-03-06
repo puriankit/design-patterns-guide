@@ -1,0 +1,22 @@
+{
+  "name": "design-patterns-guide",
+  "version": "1.0.0",
+  "description": "A comprehensive guide to software design patterns with real-world examples in React Native",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "design-patterns",
+    "react-native",
+    "software-engineering",
+    "learning",
+    "tutorial"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.72.0"
+  }
+}
