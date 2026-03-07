@@ -47,7 +47,7 @@ These patterns deal with object communication and responsibility.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/design-patterns-guide.git
+git clone https://github.com/puriankit/design-patterns-guide.git
 
 # Install dependencies
 cd design-patterns-guide
