@@ -1,4 +1,32 @@
 /**
+ * ============================================================================
+ * BUILDER PATTERN - User Profile Example
+ * ============================================================================
+ * 
+ * WHAT THIS DOES:
+ * Constructs complex user profile objects step-by-step using a fluent interface.
+ * Instead of a constructor with 10+ parameters, you chain readable methods.
+ * 
+ * WHY THIS IS USEFUL:
+ * - Avoid constructors with too many parameters
+ * - Make code self-documenting and readable
+ * - Handle optional parameters elegantly
+ * - Validate complete object before creation
+ * 
+ * HOW IT WORKS:
+ * 1. Create builder: new UserProfileBuilder()
+ * 2. Chain methods: .setFirstName('John').setEmail('john@email.com')
+ * 3. Call build(): .build() - creates the final object
+ * 4. Get immutable user object
+ * 
+ * REAL-WORLD ANALOGY:
+ * Like ordering a custom burger. You don't say "burger with sesame bun, beef patty,
+ * cheddar cheese, lettuce, tomato, onions, pickles, ketchup, mayo" all at once.
+ * You build it: "sesame bun" + "beef patty" + "cheddar" + "lettuce" etc.
+ * ============================================================================
+ */
+
+/**
  * Builder Pattern - Real World Example
  * User Profile Builder for creating complex user objects
  * 

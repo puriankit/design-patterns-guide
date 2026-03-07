@@ -1,8 +1,29 @@
 /**
- * Factory Pattern - Real World Example
- * Notification Factory that creates different types of notifications
+ * ============================================================================
+ * FACTORY PATTERN - Notification System Example
+ * ============================================================================
  * 
- * Use Case: Creating different notification types without knowing exact class
+ * WHAT THIS DOES:
+ * Creates different types of notifications (Push, Email, SMS) without the client
+ * needing to know the specific class or construction details.
+ * 
+ * WHY THIS IS USEFUL:
+ * - Add new notification types without changing client code
+ * - Centralize notification creation logic
+ * - Hide complex initialization from client
+ * - Easy to switch notification types at runtime
+ * 
+ * HOW IT WORKS:
+ * 1. Client calls: NotificationFactory.create('push', config)
+ * 2. Factory determines which class to instantiate
+ * 3. Factory creates and returns the appropriate notification object
+ * 4. Client uses the notification without knowing its concrete type
+ * 
+ * REAL-WORLD ANALOGY:
+ * Like ordering from a restaurant menu. You say "I want pizza" and the kitchen
+ * (factory) handles all the complexity of making it. You don't need to know
+ * the recipe, ingredients, or cooking process.
+ * ============================================================================
  */
 
 class Notification {
@@ -21,16 +42,26 @@ class Notification {
   }
 }
 
+// ============================================================================
+// CONCRETE NOTIFICATION TYPES
+// ============================================================================
+// Each type implements the send() method differently
+
+/**
+ * Push Notification - Sends to mobile devices
+ * Requires: device token for targeting specific device
+ */
 class PushNotification extends Notification {
   constructor(title, message, deviceToken) {
     super(title, message);
     this.deviceToken = deviceToken;
-    this.type = 'Push';
+    this.type = 'push';
     this.icon = '🔔';
   }
   
   send() {
-    return `${this.icon} Sending PUSH notification to device ${this.deviceToken}`;
+    // In real app, this would call Firebase Cloud Messaging or similar
+    return `${this.icon} Sending Push Notification to ${this.deviceToken}: ${this.message}`;
   }
   
   getInfo() {
@@ -44,16 +75,21 @@ class PushNotification extends Notification {
   }
 }
 
+/**
+ * Email Notification - Sends via email
+ * Requires: recipient email address
+ */
 class EmailNotification extends Notification {
   constructor(title, message, email) {
     super(title, message);
     this.email = email;
-    this.type = 'Email';
+    this.type = 'email';
     this.icon = '📧';
   }
   
   send() {
-    return `${this.icon} Sending EMAIL to ${this.email}`;
+    // In real app, this would use SendGrid, AWS SES, or similar
+    return `${this.icon} Sending Email to ${this.email}: ${this.message}`;
   }
   
   getInfo() {
@@ -67,16 +103,21 @@ class EmailNotification extends Notification {
   }
 }
 
+/**
+ * SMS Notification - Sends via text message
+ * Requires: phone number
+ */
 class SMSNotification extends Notification {
   constructor(title, message, phoneNumber) {
     super(title, message);
     this.phoneNumber = phoneNumber;
-    this.type = 'SMS';
+    this.type = 'sms';
     this.icon = '📱';
   }
   
   send() {
-    return `${this.icon} Sending SMS to ${this.phoneNumber}`;
+    // In real app, this would use Twilio, AWS SNS, or similar
+    return `${this.icon} Sending SMS to ${this.phoneNumber}: ${this.message}`;
   }
   
   getInfo() {
@@ -90,16 +131,21 @@ class SMSNotification extends Notification {
   }
 }
 
+/**
+ * In-App Notification - Shows within the app
+ * Requires: user ID to target specific user
+ */
 class InAppNotification extends Notification {
   constructor(title, message, userId) {
     super(title, message);
     this.userId = userId;
-    this.type = 'In-App';
+    this.type = 'inapp';
     this.icon = '💬';
   }
   
   send() {
-    return `${this.icon} Showing IN-APP notification to user ${this.userId}`;
+    // In real app, this would update app state/show toast
+    return `${this.icon} Showing In-App Notification to user ${this.userId}: ${this.message}`;
   }
   
   getInfo() {
@@ -113,27 +159,46 @@ class InAppNotification extends Notification {
   }
 }
 
+// ============================================================================
+// FACTORY CLASS - The Heart of the Pattern
+// ============================================================================
+/**
+ * NotificationFactory - Creates notification objects
+ * 
+ * This is where the magic happens! The factory:
+ * 1. Takes a type and configuration
+ * 2. Decides which class to instantiate
+ * 3. Returns the appropriate notification object
+ * 
+ * KEY BENEFIT: Client code doesn't need to know about PushNotification,
+ * EmailNotification, etc. It just calls the factory!
+ */
 class NotificationFactory {
   /**
-   * Create a notification based on type
-   * Client doesn't need to know which class to instantiate
+   * Create a notification of the specified type
+   * 
+   * @param {string} type - Type of notification ('push', 'email', 'sms', 'inapp')
+   * @param {object} config - Configuration object with notification details
+   * @returns {Notification} - Appropriate notification instance
+   * 
+   * IMPORTANT: Adding a new notification type?
+   * 1. Create the new class (e.g., SlackNotification)
+   * 2. Add a case here
+   * 3. That's it! All client code automatically supports it!
    */
-  static create(type, data) {
-    const { title, message } = data;
+  static create(type, config) {
+    const { title, message, deviceToken, email, phoneNumber, userId } = config;
     
-    switch (type.toLowerCase()) {
+    // Factory decides which class to instantiate based on type
+    switch(type.toLowerCase()) {
       case 'push':
-        return new PushNotification(title, message, data.deviceToken);
-      
+        return new PushNotification(title, message, deviceToken);
       case 'email':
-        return new EmailNotification(title, message, data.email);
-      
+        return new EmailNotification(title, message, email);
       case 'sms':
-        return new SMSNotification(title, message, data.phoneNumber);
-      
+        return new SMSNotification(title, message, phoneNumber);
       case 'inapp':
-        return new InAppNotification(title, message, data.userId);
-      
+        return new InAppNotification(title, message, userId);
       default:
         throw new Error(`Unknown notification type: ${type}`);
     }

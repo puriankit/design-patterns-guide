@@ -19,11 +19,34 @@ Another example: **Configuring a smartphone** - you choose storage, color, acces
 
 ## When to Use It? 🤔
 
-Use Builder when:
-- Object has **many optional parameters**
-- You want to avoid **constructor with too many parameters**
-- Construction process must allow **different representations**
-- Examples: Building forms, creating complex UI components, configuring objects
+Use Builder when you need to construct complex objects with many optional parameters.
+
+### Perfect Use Cases:
+
+**1. User Profile Creation**
+- Why: Users have many optional fields (bio, avatar, preferences, settings)
+- Benefit: Clear, readable code instead of massive constructors
+
+**2. Query Builders (SQL, API)**
+- Why: Queries have many optional parts (WHERE, ORDER BY, LIMIT, JOIN)
+- Benefit: Build queries step-by-step, easy to understand
+
+**3. Form Builders**
+- Why: Forms have many fields, validations, and configurations
+- Benefit: Fluent interface makes form creation intuitive
+
+**4. HTTP Request Configuration**
+- Why: Requests have headers, params, body, timeout, etc.
+- Benefit: Chain methods to configure complex requests
+
+**5. UI Component Configuration**
+- Why: Components have many props (style, behavior, content)
+- Benefit: Readable component setup
+
+### When NOT to Use:
+- ❌ Objects with only 2-3 parameters (use constructor)
+- ❌ All parameters are required (no optional fields)
+- ❌ Simple data structures (use object literals)
 
 ## Problem it Solves ❌
 
@@ -60,10 +83,45 @@ const user = new UserBuilder()
 
 ## Key Benefits ✅
 
-- **Readable code**: Clear what each parameter does
-- **Flexible construction**: Build objects step by step
-- **Immutable objects**: Can create immutable objects easily
-- **Default values**: Easy to set defaults for optional parameters
+### 1. **Readable and Self-Documenting Code**
+Method names make it crystal clear what each parameter does.
+
+**Real-World Impact:**
+- No need to remember parameter order
+- Code reads like English sentences
+- New developers understand immediately
+
+**Example:** Compare `new User('John', 'Doe', 25, true, false, 'premium')` vs `new UserBuilder().setFirstName('John').setLastName('Doe').setAge(25).build()` - second is obvious!
+
+### 2. **Flexible Construction**
+Build objects step-by-step, only setting what you need.
+
+**Real-World Impact:**
+- Handle optional parameters elegantly
+- No need for multiple constructors
+- Easy to add new optional fields
+
+**Example:** One user needs just name and email, another needs full profile with 15 fields. Same builder handles both!
+
+### 3. **Immutability Support**
+Create immutable objects that can't be changed after construction.
+
+**Real-World Impact:**
+- Thread-safe objects
+- Predictable behavior
+- Easier debugging
+
+**Example:** Once `build()` is called, the object is locked. No accidental modifications!
+
+### 4. **Validation at Build Time**
+Validate the complete object before creation.
+
+**Real-World Impact:**
+- Catch errors early
+- Ensure object is always in valid state
+- Better error messages
+
+**Example:** Builder can check "email is required" or "age must be 18+" before creating the object.
 
 ## Code Example
 
