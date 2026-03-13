@@ -2,7 +2,7 @@
 
 ## What is it?
 
-The Prototype pattern lets you copy existing objects without making your code dependent on their classes. It's like using a photocopier - you get an exact copy without knowing how the original was made.
+The Prototype Pattern is a creational design pattern where new objects are created by copying an existing object (prototype) instead of creating them from scratch.
 
 ## Real-World Analogy 🌍
 
