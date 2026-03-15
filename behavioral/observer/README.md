@@ -1,131 +1,213 @@
-# Observer Pattern 👀
+# Observer Pattern – React Native Context Example
 
-## What is it?
+## Overview
 
-The Observer pattern defines a one-to-many dependency between objects so that when one object changes state, all its dependents are notified automatically. It's like a newsletter subscription - when new content is published, all subscribers get notified.
+The **Observer Pattern** is a behavioral design pattern where **multiple objects (observers) automatically get notified when the state of another object (subject) changes**.
 
-## Real-World Analogy 🌍
+Instead of manually updating every component, the subject **broadcasts changes to all subscribed observers**.
 
-Think of **YouTube subscriptions**:
-- You subscribe to a channel (become an observer)
-- When creator uploads a video (subject changes state)
-- You get a notification (observer is notified)
-- You can unsubscribe anytime
+In **React Native**, this pattern is naturally implemented using:
 
-Another example: **Stock market alerts** - you watch certain stocks, and get notified when prices change.
+* **React Context**
+* **State updates**
+* **Hooks (useContext)**
 
-## When to Use It? 🤔
+When the context value changes, **all subscribed components automatically re-render**, acting like observers.
 
-Use Observer when one object's state changes should notify multiple other objects.
+---
 
-### Perfect Use Cases:
+# Structure
 
-**1. Event Systems**
-- Why: Multiple components need to react to user actions
-- Benefit: Loose coupling, easy to add new listeners
+```text
+Subject (Context Provider)
+        ↓
+Observers (Components using useContext)
+        ↓
+Automatic updates when state changes
+```
 
-**2. State Management (Redux, MobX)**
-- Why: UI components need to update when state changes
-- Benefit: Automatic UI updates, no manual refresh
+* **Subject** → Context Provider
+* **Observers** → Components consuming context
 
-**3. Real-Time Notifications**
-- Why: Users need instant updates (chat, alerts)
-- Benefit: Push updates to all connected clients
+---
 
-**4. Data Binding**
-- Why: UI should reflect model changes automatically
-- Benefit: Sync UI with data without manual updates
+# Example Scenario
 
-**5. Logging and Analytics**
-- Why: Multiple systems track same events
-- Benefit: Add loggers without changing business logic
+We create a **Theme System** where multiple components react when the theme changes.
 
-### When NOT to Use:
-- ❌ Simple one-to-one relationships
-- ❌ Observers need to know about subject
-- ❌ Synchronous updates are problematic
+Components such as:
 
-## Problem it Solves ❌
+* Header
+* Button
+* Screen
 
-Without Observer:
+should automatically update when the theme changes.
+
+---
+
+# 1. Create Theme Context (Subject)
+
 ```javascript
-// Tight coupling - subject knows all observers
-class NewsAgency {
-  publishNews(news) {
-    emailSubscriber.notify(news);
-    smsSubscriber.notify(news);
-    pushSubscriber.notify(news);
-    // Must modify this code to add new subscribers!
-  }
+import React, { createContext, useState } from "react";
+
+export const ThemeContext = createContext();
+
+export const ThemeProvider = ({ children }) => {
+
+  const [theme, setTheme] = useState("light");
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === "light" ? "dark" : "light");
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+```
+
+The **ThemeProvider acts as the Subject**.
+
+When the theme changes, all observers are notified.
+
+---
+
+# 2. Observer Component – Header
+
+```javascript
+import React, { useContext } from "react";
+import { View, Text } from "react-native";
+import { ThemeContext } from "./ThemeContext";
+
+export default function Header() {
+
+  const { theme } = useContext(ThemeContext);
+
+  return (
+    <View>
+      <Text>Current Theme: {theme}</Text>
+    </View>
+  );
 }
 ```
 
-With Observer:
+This component **subscribes to the subject**.
+
+---
+
+# 3. Observer Component – Button
+
 ```javascript
-// Loose coupling - subject doesn't know observers
-newsAgency.subscribe(emailSubscriber);
-newsAgency.subscribe(smsSubscriber);
-newsAgency.publishNews(news); // All notified automatically!
+import React, { useContext } from "react";
+import { Button } from "react-native";
+import { ThemeContext } from "./ThemeContext";
+
+export default function ThemeButton() {
+
+  const { toggleTheme } = useContext(ThemeContext);
+
+  return (
+    <Button title="Toggle Theme" onPress={toggleTheme} />
+  );
+}
 ```
 
-## Key Benefits ✅
+---
 
-### 1. **Loose Coupling**
-Subject doesn't know about specific observers, only that they exist.
+# 4. App Integration
 
-**Real-World Impact:**
-- Add observers without changing subject
-- Remove observers without breaking subject
-- Subject and observers evolve independently
-- Easy to test in isolation
+```javascript
+import React from "react";
+import { ThemeProvider } from "./ThemeContext";
+import Header from "./Header";
+import ThemeButton from "./ThemeButton";
 
-**Example:** News publisher doesn't know if you get notifications via email, SMS, or push. Add Slack notifications? Just add new observer - zero changes to publisher!
+export default function App() {
 
-### 2. **Dynamic Relationships**
-Add or remove observers at runtime.
+  return (
+    <ThemeProvider>
+      <Header />
+      <ThemeButton />
+    </ThemeProvider>
+  );
+}
+```
 
-**Real-World Impact:**
-- Users can subscribe/unsubscribe anytime
-- Enable/disable features dynamically
-- Conditional notifications
-- Flexible system behavior
+---
 
-**Example:** User subscribes to stock alerts. Later unsubscribes. Then resubscribes. All at runtime - no code changes!
+# Flow
 
-### 3. **Broadcast Communication**
-One event notifies many observers automatically.
+```text
+User presses Toggle Button
+        ↓
+ThemeProvider updates state
+        ↓
+Context value changes
+        ↓
+All observers re-render automatically
+        ↓
+Header updates theme UI
+```
 
-**Real-World Impact:**
-- Consistent updates across system
-- No manual notification code
-- Guaranteed delivery to all
-- Scalable to any number of observers
+---
 
-**Example:** Stock price changes. 1000 users watching it? All get notified with one broadcast. 1 line of code: `stock.notifyObservers()`
+# Advantages
 
-### 4. **Open/Closed Principle**
-Add new observers without modifying subject.
+* Automatic UI updates
+* Decouples components from each other
+* Centralized state management
+* Simplifies communication between components
 
-**Real-World Impact:**
-- Extend functionality safely
-- No risk to existing code
-- Plugin architecture
-- Easy feature additions
+---
 
-**Example:** App has email notifications. Want to add SMS? Create SmsObserver, register it. Done! No changes to existing notification code!
+# Real World React Native Use Cases
 
-## Code Example
+### Theme System
 
-See the following files for complete working examples:
-- `NewsPublisher.js` - Observer pattern for news publishing
-- `ObserverExample.js` - React Native component demonstrating usage
+```javascript
+ThemeContext
+```
 
-## Common Pitfalls ⚠️
+All components react when theme changes.
 
-- **Memory leaks**: Remember to unsubscribe!
-- **Update order**: Observers notified in unpredictable order
-- **Performance**: Too many observers can be slow
+---
 
-## Remember This! 💡
+### Authentication State
 
-**"Subscribe and get notified automatically"** - Like following someone on social media, you automatically get updates when they post!
+```javascript
+AuthContext
+```
+
+Observers update when user logs in or out.
+
+---
+
+### Global App State
+
+```javascript
+UserContext
+CartContext
+NotificationContext
+```
+
+Multiple screens react to shared state changes.
+
+---
+
+# Observer Pattern Mapping
+
+| Design Pattern Role | React Native Equivalent       |
+| ------------------- | ----------------------------- |
+| Subject             | Context Provider              |
+| Observer            | Components using `useContext` |
+| Notify Observers    | State change in Provider      |
+
+---
+
+# Summary
+
+The **Observer Pattern** allows objects to subscribe to state changes and automatically update when the state changes.
+
+In **React Native**, this pattern is naturally implemented using **React Context**, where the **Provider acts as the subject** and **components consuming the context act as observers**.
