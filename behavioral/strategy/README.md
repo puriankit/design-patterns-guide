@@ -1,136 +1,251 @@
-# Strategy Pattern 🎯
+# Strategy Pattern – React Native Context Example
 
-## What is it?
+## Overview
 
-The Strategy pattern defines a family of algorithms, encapsulates each one, and makes them interchangeable. It lets the algorithm vary independently from clients that use it. Think of it as having different routes to reach the same destination.
+The **Strategy Pattern** is a behavioral design pattern that allows you to **define a family of algorithms, encapsulate each one, and make them interchangeable at runtime**.
 
-## Real-World Analogy 🌍
+Instead of hardcoding logic inside a component, we **separate the algorithms (strategies)** and let the application choose which one to use.
 
-Think of **payment methods** at checkout:
-- You can pay with credit card
-- Or pay with PayPal
-- Or pay with Apple Pay
-- Same goal (payment), different strategies!
+In **React Native**, this pattern can be implemented using:
 
-Another example: **Navigation apps** - you can choose fastest route, shortest route, or scenic route. Same destination, different strategies.
+* **React Context**
+* **Dynamic function selection**
+* **Strategy objects**
 
-## When to Use It? 🤔
+---
 
-Use Strategy when you have multiple ways to accomplish the same task and want to switch between them.
+# Structure
 
-### Perfect Use Cases:
+```text
+Context (Provider)
+      ↓
+Select Strategy
+      ↓
+Execute Selected Algorithm
+```
 
-**1. Payment Processing**
-- Why: Multiple payment methods (credit card, PayPal, crypto)
-- Benefit: Switch payment method without changing checkout code
+Pattern roles:
 
-**2. Sorting Algorithms**
-- Why: Different algorithms for different data sizes (quicksort, mergesort, bubblesort)
-- Benefit: Choose optimal algorithm at runtime
+* **Context** → React Context Provider
+* **Strategy** → Algorithm implementations
+* **Client** → React Native components
 
-**3. Compression Methods**
-- Why: Different compression levels (fast, balanced, maximum)
-- Benefit: User selects compression strategy
+---
 
-**4. Validation Rules**
-- Why: Different validation for different contexts (strict, lenient, custom)
-- Benefit: Apply appropriate validation dynamically
+# Example Scenario
 
-**5. Navigation Routes**
-- Why: Fastest, shortest, scenic routes
-- Benefit: User switches route preference anytime
+An app supports **multiple payment methods**:
 
-### When NOT to Use:
-- ❌ Only one algorithm exists
-- ❌ Algorithm never changes
-- ❌ Simple if/else is clearer
+* Credit Card
+* PayPal
+* Apple Pay
 
-## Problem it Solves ❌
+Instead of putting all logic in one component, we create **separate strategies** for each payment method.
 
-Without Strategy:
+---
+
+# 1. Create Payment Strategies
+
+### Credit Card Strategy
+
 ```javascript
-class PaymentProcessor {
-  processPayment(method, amount) {
-    if (method === 'credit') {
-      // Credit card logic
-    } else if (method === 'paypal') {
-      // PayPal logic
-    } else if (method === 'crypto') {
-      // Crypto logic
-    }
-    // Adding new method? Modify this class!
+export const CreditCardStrategy = {
+  pay(amount) {
+    console.log(`Paid $${amount} using Credit Card`);
   }
+};
+```
+
+---
+
+### PayPal Strategy
+
+```javascript
+export const PayPalStrategy = {
+  pay(amount) {
+    console.log(`Paid $${amount} using PayPal`);
+  }
+};
+```
+
+---
+
+### Apple Pay Strategy
+
+```javascript
+export const ApplePayStrategy = {
+  pay(amount) {
+    console.log(`Paid $${amount} using Apple Pay`);
+  }
+};
+```
+
+---
+
+# 2. Strategy Context
+
+The context manages which strategy is currently selected.
+
+```javascript
+import React, { createContext, useState } from "react";
+
+export const PaymentContext = createContext();
+
+export const PaymentProvider = ({ children }) => {
+
+  const [strategy, setStrategy] = useState(null);
+
+  const executePayment = (amount) => {
+    if (!strategy) {
+      console.log("No payment strategy selected");
+      return;
+    }
+
+    strategy.pay(amount);
+  };
+
+  return (
+    <PaymentContext.Provider
+      value={{ setStrategy, executePayment }}
+    >
+      {children}
+    </PaymentContext.Provider>
+  );
+};
+```
+
+---
+
+# 3. React Native Component Using Strategy
+
+```javascript
+import React, { useContext } from "react";
+import { View, Button } from "react-native";
+import { PaymentContext } from "./PaymentContext";
+import { CreditCardStrategy } from "./CreditCardStrategy";
+import { PayPalStrategy } from "./PayPalStrategy";
+
+export default function PaymentScreen() {
+
+  const { setStrategy, executePayment } = useContext(PaymentContext);
+
+  return (
+    <View>
+
+      <Button
+        title="Pay with Credit Card"
+        onPress={() => setStrategy(CreditCardStrategy)}
+      />
+
+      <Button
+        title="Pay with PayPal"
+        onPress={() => setStrategy(PayPalStrategy)}
+      />
+
+      <Button
+        title="Pay $100"
+        onPress={() => executePayment(100)}
+      />
+
+    </View>
+  );
 }
 ```
 
-With Strategy:
-```javascript
-// Each strategy is separate
-const processor = new PaymentProcessor(new CreditCardStrategy());
-processor.pay(100); // Uses credit card
+---
 
-processor.setStrategy(new PayPalStrategy());
-processor.pay(100); // Uses PayPal
+# 4. App Integration
+
+```javascript
+import React from "react";
+import { PaymentProvider } from "./PaymentContext";
+import PaymentScreen from "./PaymentScreen";
+
+export default function App() {
+
+  return (
+    <PaymentProvider>
+      <PaymentScreen />
+    </PaymentProvider>
+  );
+}
 ```
 
-## Key Benefits ✅
+---
 
-### 1. **Eliminates Conditional Statements**
-Replace long if/else chains with clean strategy objects.
+# Flow
 
-**Real-World Impact:**
-- More readable code
-- Easier to maintain
-- Less error-prone
-- Better code organization
+```text
+User selects payment method
+        ↓
+Context sets selected strategy
+        ↓
+User triggers payment
+        ↓
+Context executes chosen strategy
+```
 
-**Example:** Payment processing with 10 methods = 10 if/else blocks (messy!). With Strategy, 10 clean strategy classes. Much clearer!
+Example Output:
 
-### 2. **Open/Closed Principle**
-Add new strategies without modifying existing code.
+```text
+Paid $100 using Credit Card
+```
 
-**Real-World Impact:**
-- No risk to working code
-- Easy to extend
-- Safe to add features
-- Plugin architecture
+---
 
-**Example:** Add cryptocurrency payment? Create CryptoStrategy class. Zero changes to existing payment code. Existing strategies unaffected!
+# Advantages
 
-### 3. **Runtime Flexibility**
-Switch algorithms on the fly based on context.
+* Removes large conditional logic (`if/else`)
+* Makes algorithms interchangeable
+* Improves code maintainability
+* Follows **Open/Closed Principle**
 
-**Real-World Impact:**
-- User preferences
-- Performance optimization
-- A/B testing
-- Dynamic behavior
+---
 
-**Example:** User starts with credit card, switches to PayPal mid-checkout. One line: `processor.setStrategy(new PayPalStrategy())`. Instant switch!
+# Real World React Native Use Cases
 
-### 4. **Testability**
-Each strategy can be tested in isolation.
+### Payment Methods
 
-**Real-World Impact:**
-- Focused unit tests
-- Easy to mock
-- Better test coverage
-- Faster debugging
+```javascript
+CreditCardStrategy
+UPIStrategy
+PayPalStrategy
+```
 
-**Example:** Test CreditCardStrategy independently. No need to test entire payment system. Isolated, fast, reliable tests!
+---
 
-## Code Example
+### Sorting Algorithms
 
-See the following files for complete working examples:
-- `PaymentStrategy.js` - Different payment strategies
-- `StrategyExample.js` - React Native component demonstrating usage
+```javascript
+PriceSortStrategy
+RatingSortStrategy
+PopularitySortStrategy
+```
 
-## Common Pitfalls ⚠️
+---
 
-- **Too many strategies**: Don't create strategy for everything
-- **Client awareness**: Client must know about different strategies
-- **Overhead**: More classes to manage
+### Authentication Methods
 
-## Remember This! 💡
+```javascript
+EmailLoginStrategy
+GoogleLoginStrategy
+AppleLoginStrategy
+```
 
-**"Different ways to achieve the same goal"** - Like choosing between driving, flying, or taking a train to reach your destination!
+---
+
+# Strategy Pattern Mapping
+
+| Design Pattern Role | React Native Equivalent |
+| ------------------- | ----------------------- |
+| Context             | React Context Provider  |
+| Strategy            | Algorithm objects       |
+| Client              | React Native components |
+
+---
+
+# Summary
+
+The **Strategy Pattern** allows an application to **select different algorithms at runtime**.
+
+In **React Native**, this pattern can be implemented using **React Context to manage and execute different strategies**, enabling flexible and maintainable application logic.
