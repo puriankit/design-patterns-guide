@@ -1,81 +1,208 @@
-# Template Method Pattern 📋
+# Template Method Pattern
 
-## What is it?
+## Overview
 
-The Template Method pattern defines the skeleton of an algorithm in a base class but lets subclasses override specific steps without changing the algorithm's structure. It's like a recipe - the steps are fixed, but ingredients can vary.
+The **Template Method Pattern** is a behavioral design pattern that **defines the skeleton of an algorithm in a base class while allowing subclasses to override specific steps without changing the overall algorithm structure**.
 
-## Real-World Analogy 🌍
+It ensures that the **algorithm structure remains the same**, while certain steps can be customized by subclasses.
 
-Think of **making different types of beverages**:
-- All follow same steps: boil water, brew, pour, add condiments
-- Coffee: brew coffee grounds, add sugar and milk
-- Tea: steep tea bag, add lemon
-- Same process, different implementations!
+---
 
-Another example: **Building a house** - foundation, walls, roof, interior (same steps), but materials and styles vary.
+# Structure
 
-## When to Use It? 🤔
+```text
+AbstractClass
+   ├── templateMethod()
+   │     ├── step1()
+   │     ├── step2()
+   │     └── step3()
+   ↓
+ConcreteClassA
+ConcreteClassB
+```
 
-Use Template Method when:
-- You have an algorithm with **fixed steps** but varying implementations
-- You want to avoid **code duplication** in similar classes
-- You want to control which parts of algorithm can be customized
-- Examples: Data processing pipelines, game AI, document generators
+### Components
 
-## Problem it Solves ❌
+**Template Method**
 
-Without Template Method:
+* Defines the sequence of steps of an algorithm.
+
+**Abstract Steps**
+
+* Methods that subclasses must implement.
+
+**Concrete Steps**
+
+* Methods that are already implemented in the base class.
+
+**Subclasses**
+
+* Implement or override specific steps of the algorithm.
+
+---
+
+# Example
+
+Suppose we are preparing different types of beverages.
+
+Steps for making a beverage:
+
+1. Boil water
+2. Brew drink
+3. Pour into cup
+4. Add condiments
+
+The overall process stays the same, but **brewing and condiments differ**.
+
+---
+
+# Step 1 – Abstract Class
+
 ```javascript
-class CoffeeRecipe {
-  make() {
-    this.boilWater();
-    this.brewCoffee();
-    this.pourInCup();
-    this.addSugarAndMilk();
-  }
-}
+class Beverage {
 
-class TeaRecipe {
-  make() {
-    this.boilWater();  // Duplicated!
-    this.steepTea();
-    this.pourInCup();  // Duplicated!
-    this.addLemon();
+  prepareRecipe() {
+    this.boilWater();
+    this.brew();
+    this.pourInCup();
+    this.addCondiments();
   }
+
+  boilWater() {
+    console.log("Boiling water");
+  }
+
+  pourInCup() {
+    console.log("Pouring into cup");
+  }
+
+  brew() {
+    throw new Error("brew() must be implemented");
+  }
+
+  addCondiments() {
+    throw new Error("addCondiments() must be implemented");
+  }
+
 }
 ```
 
-With Template Method:
+---
+
+# Step 2 – Concrete Class (Tea)
+
 ```javascript
-class BeverageRecipe {
-  make() {  // Template method
-    this.boilWater();
-    this.brew();  // Subclass implements
-    this.pourInCup();
-    this.addCondiments();  // Subclass implements
+class Tea extends Beverage {
+
+  brew() {
+    console.log("Steeping the tea");
   }
+
+  addCondiments() {
+    console.log("Adding lemon");
+  }
+
 }
 ```
 
-## Key Benefits ✅
+---
 
-- **Code reuse**: Common steps in base class
-- **Controlled customization**: Only specific steps can be overridden
-- **Inversion of control**: Framework calls your code
-- **Consistent structure**: All subclasses follow same algorithm
+# Step 3 – Concrete Class (Coffee)
 
-## Code Example
+```javascript
+class Coffee extends Beverage {
 
-See the following files for complete working examples:
-- `DataProcessor.js` - Template method for data processing
-- `TemplateMethodExample.js` - React Native component demonstrating usage
+  brew() {
+    console.log("Brewing coffee grounds");
+  }
 
-## Common Pitfalls ⚠️
+  addCondiments() {
+    console.log("Adding sugar and milk");
+  }
 
-- **Rigid structure**: Hard to add new steps
-- **Inheritance coupling**: Tight coupling with base class
-- **Limited flexibility**: Can't change algorithm structure
+}
+```
 
-## Remember This! 💡
+---
 
-**"Fixed recipe, flexible ingredients"** - Like following a recipe, the steps are the same, but you can customize the ingredients!
+# Step 4 – Client Code
+
+```javascript
+const tea = new Tea();
+tea.prepareRecipe();
+
+const coffee = new Coffee();
+coffee.prepareRecipe();
+```
+
+---
+
+# Output
+
+```text
+Boiling water
+Steeping the tea
+Pouring into cup
+Adding lemon
+```
+
+---
+
+# Flow
+
+```text
+Client
+  ↓
+Template Method
+  ↓
+Common Steps (base class)
+  ↓
+Custom Steps (subclass)
+```
+
+---
+
+# Advantages
+
+* Reuses common code
+* Prevents duplication
+* Ensures algorithm structure remains consistent
+* Allows controlled customization
+
+---
+
+# When to Use
+
+Use the **Template Method Pattern** when:
+
+* Multiple classes follow the **same algorithm structure**
+* Some steps **vary between implementations**
+* You want to **reuse common steps while allowing customization**
+
+---
+
+# Real World Examples
+
+Common examples include:
+
+* **Data parsing frameworks**
+* **Game engines (game loop)**
+* **Build pipelines**
+* **File processing systems**
+
+Example structure:
+
+```text
+ProcessFile()
+  ↓
+Open File
+Parse Content (custom)
+Process Data (custom)
+Close File
+```
+
+---
+
+# Summary
+
+The **Template Method Pattern** defines the **structure of an algorithm in a base class while allowing subclasses to override specific steps**, ensuring consistency while enabling customization.
